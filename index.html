@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assetplan — Publica tu cartera de departamentos</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Inter', sans-serif; background: #fff; color: #1e2939; -webkit-font-smoothing: antialiased; }
+  img { max-width: 100%; display: block; }
+  button { font-family: 'Inter', sans-serif; cursor: pointer; }
+  a { text-decoration: none; color: inherit; }
+  input, textarea { font-family: 'Inter', sans-serif; }
+
+  /* ─── NAV ─── */
+  .nav { border-bottom: 1px solid #e5e7eb; padding: 16px clamp(20px, 5vw, 190px); display: flex; align-items: center; gap: 16; background: #fff; position: sticky; top: 0; z-index: 100; }
+  .nav-logo { display: flex; align-items: center; gap: 6px; }
+  .nav-logo svg { width: 24px; height: 24px; flex-shrink: 0; }
+  .nav-logo-bold { font-weight: 800; font-size: 18px; }
+  .nav-logo-light { font-weight: 400; font-size: 18px; }
+  .nav-menu { padding: 10px; display: flex; align-items: center; gap: 6px; cursor: pointer; }
+  .nav-menu span { font-weight: 500; font-size: 16px; color: #4a5565; }
+
+  /* ─── HERO ─── */
+  .hero { position: relative; display: flex; align-items: center; justify-content: space-between; gap: 40px; padding: 48px clamp(20px, 5vw, 190px); min-height: 680px; overflow: hidden; }
+  .hero-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+  .hero-overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.2); z-index: 1; }
+  .hero-left { position: relative; z-index: 2; flex: 1; max-width: 520px; display: flex; flex-direction: column; gap: 16px; }
+  .hero-title-line { padding: 4px; }
+  .hero-title { font-weight: 800; font-size: clamp(32px, 5vw, 50px); line-height: 1.12; color: #fff; }
+  .hero-highlight { background: #2b7fff; display: inline-block; padding: 4px; }
+  .hero-subtitle { font-weight: 600; font-size: clamp(16px, 2vw, 20px); line-height: 1.4; color: #fff; }
+
+  /* ─── FORM CARD ─── */
+  .form-card { position: relative; z-index: 2; width: 100%; max-width: 412px; background: #fff; border-radius: 12px; padding: 20px; box-shadow: 0 10px 15px rgba(9,30,66,0.1), 0 0 1px rgba(9,30,66,0.31); flex-shrink: 0; }
+  .form-card h3 { font-weight: 600; font-size: 18px; color: #1f2937; line-height: 1.55; margin-bottom: 16px; }
+  .form-fields { display: flex; flex-direction: column; gap: 12px; }
+  .form-label { font-weight: 600; font-size: 15px; color: #1e2939; margin-bottom: 4px; display: block; }
+  .form-input { width: 100%; height: 48px; border: 1px solid #d1d5dc; border-radius: 6px; padding: 10px; font-size: 16px; color: #1e2939; outline: none; background: #fff; }
+  .form-input:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+  .form-input::placeholder { color: #99a1af; }
+  .form-phone-row { display: flex; gap: 10px; }
+  .form-phone-prefix { width: 115px; height: 48px; border: 1px solid #d1d5dc; border-radius: 6px; padding: 10px; display: flex; align-items: center; justify-content: space-between; font-size: 16px; cursor: pointer; background: #fff; flex-shrink: 0; }
+  .form-textarea { width: 100%; height: 72px; border: 1px solid #d1d5dc; border-radius: 6px; padding: 10px; font-size: 16px; resize: none; outline: none; color: #1e2939; }
+  .form-textarea:focus { border-color: #2563eb; box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+  .form-textarea::placeholder { color: #99a1af; }
+  .form-counter { text-align: right; font-size: 14px; color: #6a7282; margin-top: 2px; }
+  .btn-primary { width: 100%; padding: 12px 16px; background: #2563eb; color: #fff; border: none; border-radius: 4px; font-weight: 500; font-size: 16px; margin-top: 16px; transition: background 0.2s; }
+  .btn-primary:hover { background: #1d4ed8; }
+  .btn-video { display: flex; align-items: center; justify-content: center; gap: 12px; padding: 12px 16px; background: none; border: none; font-weight: 500; font-size: 16px; color: #2563eb; width: 100%; }
+  .form-checkbox { display: flex; gap: 10px; align-items: flex-start; padding: 4px; cursor: pointer; margin-top: 4px; }
+  .form-checkbox input { width: 22px; height: 22px; margin-top: 2px; accent-color: #2563eb; flex-shrink: 0; }
+  .form-checkbox span { font-size: 14px; color: #6a7282; line-height: 1.43; }
+  .form-checkbox u { font-weight: 500; }
+
+  /* ─── INTERACTIVE BANNER ─── */
+  .ibanner { background: linear-gradient(135deg, #1e3a5f 0%, #155dfc 50%, #2b7fff 100%); padding: 48px 20px; position: relative; overflow: hidden; }
+  .ibanner-circle1 { position: absolute; top: -60px; right: -60px; width: 200px; height: 200px; border-radius: 50%; background: rgba(255,255,255,0.05); }
+  .ibanner-circle2 { position: absolute; bottom: -40px; left: -40px; width: 160px; height: 160px; border-radius: 50%; background: rgba(255,255,255,0.04); }
+  .ibanner-inner { max-width: 1060px; margin: 0 auto; }
+  .ibanner-stats { display: flex; justify-content: space-around; margin-bottom: 40px; flex-wrap: wrap; gap: 20px; }
+  .ibanner-stat { text-align: center; flex: 1 1 140px; }
+  .ibanner-stat-val { font-weight: 800; font-size: clamp(28px, 4vw, 42px); color: #fff; line-height: 1.1; }
+  .ibanner-stat-label { font-weight: 400; font-size: 14px; color: rgba(255,255,255,0.75); margin-top: 6px; }
+  .ibanner-tabs { display: flex; gap: 12px; justify-content: center; margin-bottom: 24px; flex-wrap: wrap; }
+  .ibanner-tab { padding: 10px 24px; border-radius: 50px; border: 1.5px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); color: #fff; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; gap: 8px; }
+  .ibanner-tab.active { background: #fff; color: #155dfc; border-color: #fff; }
+  .ibanner-tab:hover:not(.active) { background: rgba(255,255,255,0.2); }
+  .ibanner-content { background: rgba(255,255,255,0.1); border-radius: 12px; padding: 24px 32px; backdrop-filter: blur(8px); text-align: center; min-height: 60px; }
+  .ibanner-content p { font-weight: 400; font-size: 17px; color: #fff; line-height: 1.6; }
+
+  /* ─── PORTFOLIO ─── */
+  .portfolio { display: flex; align-items: center; justify-content: space-between; gap: 60px; padding: 78px clamp(20px, 5vw, 190px); max-width: 1440px; margin: 0 auto; }
+  .portfolio-img { width: 100%; max-width: 518px; height: 346px; border-radius: 12px; overflow: hidden; flex-shrink: 0; }
+  .portfolio-img img { width: 114%; height: 114%; object-fit: cover; margin-left: -7%; }
+  .portfolio-text { display: flex; flex-direction: column; gap: 20px; max-width: 464px; }
+  .portfolio-text h2 { font-weight: 600; font-size: clamp(22px, 3vw, 28px); line-height: 1.29; }
+  .portfolio-text p { font-weight: 400; font-size: 18px; line-height: 1.55; }
+  .btn-blue { background: #155dfc; color: #fff; border: none; border-radius: 4px; padding: 12px 16px; font-weight: 500; font-size: 16px; width: fit-content; transition: background 0.2s; }
+  .btn-blue:hover { background: #1247cc; }
+
+  /* ─── COMPANIES ─── */
+  .companies { background: #eef0f3; padding: 80px 20px; text-align: center; }
+  .companies h2 { font-weight: 600; font-size: clamp(22px, 3vw, 28px); line-height: 1.29; }
+  .companies .sub { font-weight: 400; font-size: 18px; color: #1e2939; margin-top: 10px; }
+  .companies-grid { display: flex; gap: 24px; justify-content: center; margin-top: 32px; flex-wrap: wrap; padding: 0 20px; }
+  .company-card { width: 152px; height: 152px; background: #fff; border-radius: 4px; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .company-card img { max-width: 70%; max-height: 40%; object-fit: contain; }
+
+  /* ─── INMOBILIARIA CTA ─── */
+  .inmob-cta { display: flex; width: 100%; }
+  .inmob-left { flex: 1; background: #155dfc; display: flex; align-items: center; justify-content: center; padding: 80px clamp(20px, 4vw, 54px) 80px clamp(20px, 5vw, 173px); }
+  .inmob-content { max-width: 469px; display: flex; flex-direction: column; gap: 32px; }
+  .inmob-content h2 { font-weight: 600; font-size: clamp(22px, 3vw, 28px); line-height: 1.29; color: #fff; }
+  .inmob-content .desc { font-weight: 600; font-size: 18px; line-height: 1.55; color: #fff; }
+  .inmob-features { display: flex; flex-direction: column; gap: 10px; }
+  .inmob-feature { display: flex; gap: 10px; align-items: flex-start; }
+  .inmob-feature svg { flex-shrink: 0; margin-top: 2px; }
+  .inmob-feature span { font-weight: 400; font-size: 18px; line-height: 1.55; color: #fff; }
+  .btn-white { background: #fff; color: #155dfc; border: none; border-radius: 4px; padding: 12px 16px; font-weight: 500; font-size: 16px; width: fit-content; transition: background 0.2s; }
+  .btn-white:hover { background: #f0f0f0; }
+  .inmob-right { flex: 1; overflow: hidden; min-height: 400px; }
+  .inmob-right img { width: 111%; height: 100%; object-fit: cover; margin-left: -2.6%; }
+
+  /* ─── FAQ ─── */
+  .faq { max-width: 1060px; margin: 0 auto; padding: 78px 20px; }
+  .faq h2 { font-weight: 600; font-size: clamp(22px, 3vw, 28px); text-align: center; margin-bottom: 32px; }
+  .faq-list { display: flex; flex-direction: column; gap: 14px; }
+  .faq-item { background: #fff; border: 1px solid #d1d5dc; border-radius: 6px; padding: 16px; cursor: pointer; transition: box-shadow 0.2s; }
+  .faq-item:hover { box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+  .faq-header { display: flex; justify-content: space-between; align-items: center; }
+  .faq-header p { font-weight: 600; font-size: 16px; flex: 1; padding-right: 12px; }
+  .faq-chevron { transition: transform 0.25s; flex-shrink: 0; }
+  .faq-item.open .faq-chevron { transform: rotate(180deg); }
+  .faq-answer { font-weight: 400; font-size: 14px; color: #6a7282; line-height: 1.6; margin-top: 12px; display: none; }
+  .faq-item.open .faq-answer { display: block; }
+
+  /* ─── FINAL CTA ─── */
+  .final-cta { background: #dbeafe; padding: 80px 20px; text-align: center; }
+  .final-cta h2 { font-weight: 600; font-size: clamp(22px, 3vw, 28px); line-height: 1.29; }
+  .final-cta p { font-weight: 400; font-size: 18px; line-height: 1.55; margin-top: 32px; max-width: 900px; margin-left: auto; margin-right: auto; }
+  .final-cta button { margin-top: 32px; }
+
+  /* ─── FOOTER ─── */
+  .footer { background: #f9fafb; padding: 64px clamp(20px, 5vw, 118px) 32px; }
+  .footer-cols { display: flex; gap: 32px; padding-bottom: 32px; flex-wrap: wrap; }
+  .footer-col { min-width: 180px; flex: 1; }
+  .footer-col h4 { font-weight: 600; font-size: 14px; color: #4b5563; text-transform: uppercase; letter-spacing: 0.7px; margin-bottom: 16px; }
+  .footer-col a { display: block; font-weight: 400; font-size: 16px; color: #6b7280; line-height: 1.5; margin-bottom: 12px; cursor: pointer; }
+  .footer-col a:hover { color: #155dfc; }
+  .footer-bottom { border-top: 1px solid #cdd1d7; padding-top: 32px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; }
+  .footer-copy { font-size: 16px; color: #6b7280; }
+  .footer-terms { font-size: 14px; color: #6b7280; text-decoration: underline; cursor: pointer; }
+  .footer-social { display: flex; gap: 10px; }
+  .footer-social-icon { width: 30px; height: 30px; border-radius: 50%; background: #e5e7eb; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 600; color: #6b7280; cursor: pointer; transition: background 0.2s; }
+  .footer-social-icon:hover { background: #d1d5dc; }
+
+  /* ─── SEO LINKS ─── */
+  .seo { background: #f3f4f6; padding: 16px clamp(16px, 3vw, 40px); }
+  .seo-title { font-weight: 600; font-size: 14px; margin-bottom: 10px; }
+  .seo-grid { display: flex; gap: 10px; flex-wrap: wrap; }
+  .seo-col { flex: 1; min-width: 200px; }
+  .seo-col h5 { font-weight: 500; font-size: 12px; margin-bottom: 4px; }
+  .seo-col a { display: block; font-weight: 400; font-size: 12px; color: #6a7282; margin: 2px 0; cursor: pointer; }
+  .seo-col a:hover { color: #155dfc; }
+  .seo-more { font-weight: 500; font-size: 12px; color: #6a7282; cursor: pointer; margin-top: 4px; display: inline-block; }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 1024px) {
+    .hero { flex-direction: column; align-items: stretch; padding: 32px 20px; min-height: auto; gap: 32px; }
+    .hero-left { max-width: 100%; }
+    .form-card { max-width: 100%; }
+    .portfolio { flex-direction: column; padding: 48px 20px; gap: 32px; }
+    .portfolio-img { max-width: 100%; height: auto; aspect-ratio: 3/2; }
+    .portfolio-img img { width: 100%; height: 100%; margin-left: 0; }
+    .portfolio-text { max-width: 100%; }
+    .inmob-cta { flex-direction: column; }
+    .inmob-left { padding: 48px 20px; }
+    .inmob-right { min-height: 300px; }
+    .inmob-right img { width: 100%; margin-left: 0; }
+    .footer-cols { flex-direction: column; gap: 24px; }
+  }
+  @media (max-width: 640px) {
+    .nav { padding: 12px 16px; gap: 10px; }
+    .hero { padding: 24px 16px; }
+    .hero-title { font-size: 28px; }
+    .hero-subtitle { font-size: 15px; }
+    .form-card { padding: 16px; }
+    .ibanner { padding: 32px 16px; }
+    .ibanner-stats { gap: 16px; }
+    .ibanner-stat { flex: 1 1 120px; }
+    .ibanner-tab { padding: 8px 16px; font-size: 14px; }
+    .ibanner-content { padding: 16px 20px; }
+    .ibanner-content p { font-size: 15px; }
+    .companies-grid { gap: 12px; }
+    .company-card { width: 100px; height: 100px; }
+    .inmob-left { padding: 32px 16px; }
+    .inmob-content { gap: 24px; }
+    .inmob-feature span { font-size: 16px; }
+    .faq { padding: 48px 16px; }
+    .final-cta { padding: 48px 16px; }
+    .footer { padding: 32px 16px 24px; }
+    .footer-bottom { flex-direction: column; align-items: flex-start; }
+    .seo-grid { flex-direction: column; }
+    .form-phone-row { flex-direction: column; }
+    .form-phone-prefix { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ═══ NAV ═══ -->
+<nav class="nav">
+  <div class="nav-logo">
+    <svg viewBox="0 0 28 28"><polygon points="14,2 26,26 2,26" fill="#155dfc"/></svg>
+    <span class="nav-logo-bold">asset</span><span class="nav-logo-light">plan</span>
+  </div>
+  <div class="nav-menu">
+    <span>Propietarios</span>
+    <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#4a5565" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </div>
+</nav>
+
+<!-- ═══ HERO ═══ -->
+<section class="hero">
+  <img class="hero-bg" src="https://www.figma.com/api/mcp/asset/4a6efc43-0d44-4af9-891a-cea321b1a2af" alt="">
+  <div class="hero-overlay"></div>
+
+  <div class="hero-left">
+    <div>
+      <div class="hero-title-line"><span class="hero-title">Publica tu cartera de</span></div>
+      <div class="hero-highlight"><span class="hero-title">departamentos</span></div>
+    </div>
+    <p class="hero-subtitle">Si tienes una empresa inmobiliaria puedes arrendar tus departamentos junto a Assetplan</p>
+  </div>
+
+  <div class="form-card">
+    <h3>Contáctate con nosotros hoy</h3>
+    <div class="form-fields">
+      <div>
+        <label class="form-label">Nombre de empresa</label>
+        <input class="form-input" placeholder="Inmobiliaria ABC SpA">
+      </div>
+      <div>
+        <label class="form-label">Nombre de contacto</label>
+        <input class="form-input" placeholder="Juan Pérez">
+      </div>
+      <div>
+        <label class="form-label">Correo electrónico</label>
+        <input class="form-input" type="email" placeholder="juan@ejemplo.com">
+      </div>
+      <div>
+        <label class="form-label">Teléfono</label>
+        <div class="form-phone-row">
+          <div class="form-phone-prefix">
+            <span>+56</span>
+            <svg width="10" height="6" viewBox="0 0 10 6" fill="none"><path d="M1 1L5 5L9 1" stroke="#1e2939" stroke-width="1.5"/></svg>
+          </div>
+          <input class="form-input" placeholder="9 9999 7777" style="flex:1">
+        </div>
+      </div>
+      <div>
+        <label class="form-label">Comentarios</label>
+        <textarea class="form-textarea" placeholder="Cuéntanos brevemente" maxlength="100" id="comentarios"></textarea>
+        <div class="form-counter"><span id="char-count">0</span>/100</div>
+      </div>
+    </div>
+    <button class="btn-primary">Publica con Assetplan</button>
+    <button class="btn-video">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#2563eb" stroke-width="2"><rect x="2" y="4" width="14" height="16" rx="2"/><path d="M16 8l4-2v12l-4-2"/></svg>
+      Videollamada con ejecutivo
+    </button>
+    <label class="form-checkbox">
+      <input type="checkbox">
+      <span>Acepto los <u>Términos y Condiciones y la Política de Privacidad y Tratamiento de Datos Personales</u></span>
+    </label>
+  </div>
+</section>
+
+<!-- ═══ INTERACTIVE BANNER ═══ -->
+<section class="ibanner">
+  <div class="ibanner-circle1"></div>
+  <div class="ibanner-circle2"></div>
+  <div class="ibanner-inner">
+    <div class="ibanner-stats">
+      <div class="ibanner-stat">
+        <div class="ibanner-stat-val" data-target="19000" data-suffix="+">0</div>
+        <div class="ibanner-stat-label">Unidades gestionadas</div>
+      </div>
+      <div class="ibanner-stat">
+        <div class="ibanner-stat-val" data-target="98" data-suffix="%">0</div>
+        <div class="ibanner-stat-label">Tasa de ocupación</div>
+      </div>
+      <div class="ibanner-stat">
+        <div class="ibanner-stat-val" data-target="150" data-suffix="+">0</div>
+        <div class="ibanner-stat-label">Empresas confían en nosotros</div>
+      </div>
+      <div class="ibanner-stat">
+        <div class="ibanner-stat-val" data-target="15" data-suffix=" años">0</div>
+        <div class="ibanner-stat-label">De experiencia</div>
+      </div>
+    </div>
+    <div class="ibanner-tabs">
+      <button class="ibanner-tab active" data-tab="0">📊 Gestión</button>
+      <button class="ibanner-tab" data-tab="1">🏢 Publicación</button>
+      <button class="ibanner-tab" data-tab="2">📈 Rentabilidad</button>
+    </div>
+    <div class="ibanner-content">
+      <p id="tab-content">Administración profesional de tu portafolio inmobiliario con reportes en tiempo real.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ PORTFOLIO ═══ -->
+<section class="portfolio">
+  <div class="portfolio-img">
+    <img src="https://www.figma.com/api/mcp/asset/629ab3ef-6c7d-4a53-bbbf-6814b56c8820" alt="Edificio moderno">
+  </div>
+  <div class="portfolio-text">
+    <h2>Tu portafolio gestionado con administración profesional</h2>
+    <p>En Assetplan gestionamos más de 19.000 unidades de medianas y grandes empresas a lo largo de todo Chile.</p>
+    <p>Contáctanos hoy para gestionar tu portafolio</p>
+    <button class="btn-blue">Publicar junto a Assetplan</button>
+  </div>
+</section>
+
+<!-- ═══ COMPANIES ═══ -->
+<section class="companies">
+  <h2>Empresas que trabajan con nosotros</h2>
+  <p class="sub">Nuestros mayores aliados</p>
+  <div class="companies-grid">
+    <div class="company-card"><img src="https://www.figma.com/api/mcp/asset/4944eea3-34ee-4631-8123-c8dde1f89de6" alt="Besalco"></div>
+    <div class="company-card"><img src="https://www.figma.com/api/mcp/asset/9a3647d7-5731-4e93-bd1e-7aaa56b26262" alt="ISA Corp"></div>
+    <div class="company-card"><img src="https://www.figma.com/api/mcp/asset/73093331-b0cd-4d01-8d8c-9a03c52dc6ef" alt="Inmobilia"></div>
+    <div class="company-card"><img src="https://www.figma.com/api/mcp/asset/a3d8f529-b067-4675-87e5-ab7cc6088c71" alt="PY"></div>
+    <div class="company-card"><img src="https://www.figma.com/api/mcp/asset/e23a3f3a-4d63-4f57-9440-a115a42c14e5" alt="IDEA"></div>
+    <div class="company-card"><img src="https://www.figma.com/api/mcp/asset/9ceec3e3-404d-4b1f-8ea3-1ef498316f6f" alt="Terra Firme"></div>
+  </div>
+</section>
+
+<!-- ═══ INMOBILIARIA CTA ═══ -->
+<section class="inmob-cta">
+  <div class="inmob-left">
+    <div class="inmob-content">
+      <h2>¿Eres una inmobiliaria?</h2>
+      <p class="desc">Publica hoy tus departamentos junto a Assetplan y disfruta de:</p>
+      <div class="inmob-features">
+        <div class="inmob-feature">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 13L9 17L19 7" stroke="#00d492" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Publicación y selección de arrendatarios</span>
+        </div>
+        <div class="inmob-feature">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 13L9 17L19 7" stroke="#00d492" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Análisis de solvencia avanzado para cada unidad.</span>
+        </div>
+        <div class="inmob-feature">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 13L9 17L19 7" stroke="#00d492" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          <span>Mayor rentabilidad de los inmuebles</span>
+        </div>
+      </div>
+      <button class="btn-white">Optimizar mi operación</button>
+    </div>
+  </div>
+  <div class="inmob-right">
+    <img src="https://www.figma.com/api/mcp/asset/293de32f-d028-4546-864a-8df4b3b3e679" alt="Equipo de trabajo">
+  </div>
+</section>
+
+<!-- ═══ FAQ ═══ -->
+<section class="faq">
+  <h2>Preguntas frecuentes</h2>
+  <div class="faq-list">
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-header">
+        <p>¿Cómo funciona la gestión de cartera de departamentos con Assetplan?</p>
+        <svg class="faq-chevron" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="#1e2939" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="faq-answer">Assetplan se encarga de la gestión completa de tu portafolio inmobiliario: desde la publicación y captación de arrendatarios, hasta el análisis de solvencia, firma de contratos y administración mensual.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-header">
+        <p>¿Qué tipo de empresas pueden publicar su cartera con Assetplan?</p>
+        <svg class="faq-chevron" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="#1e2939" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="faq-answer">Inmobiliarias, fondos de inversión, desarrolladores y cualquier empresa con un portafolio de departamentos en Chile puede publicar con nosotros.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-header">
+        <p>¿Cómo optimizan la vacancia de una cartera inmobiliaria?</p>
+        <svg class="faq-chevron" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="#1e2939" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="faq-answer">Utilizamos tecnología de pricing dinámico, publicación en múltiples portales y un equipo comercial dedicado para reducir al mínimo los tiempos de vacancia.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-header">
+        <p>¿Entregan reportes y métricas de desempeño?</p>
+        <svg class="faq-chevron" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="#1e2939" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="faq-answer">Sí, entregamos reportes mensuales detallados con métricas de ocupación, morosidad, rentabilidad y estado de cada unidad en tu portafolio.</div>
+    </div>
+    <div class="faq-item" onclick="this.classList.toggle('open')">
+      <div class="faq-header">
+        <p>¿Qué incluye la administración profesional de departamentos?</p>
+        <svg class="faq-chevron" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M6 9L12 15L18 9" stroke="#1e2939" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </div>
+      <div class="faq-answer">Incluye cobranza, gestión de contratos, mantención coordinada, atención al arrendatario y reportería financiera completa.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══ FINAL CTA ═══ -->
+<section class="final-cta">
+  <h2>Optimiza la rentabilidad de tu portafolio inmobiliario</h2>
+  <p>Nuestra tecnología y equipo especializado aseguran una ocupación constante y una gestión eficiente de todas tus unidades a gran escala.</p>
+  <button class="btn-blue">Iniciar gestión masiva</button>
+</section>
+
+<!-- ═══ FOOTER ═══ -->
+<footer class="footer">
+  <div class="footer-cols">
+    <div class="footer-col">
+      <h4>Ayuda e información</h4>
+      <a>Centro de ayuda</a>
+      <a>Validar certificado</a>
+      <a>Trabaja con nosotros</a>
+    </div>
+    <div class="footer-col">
+      <h4>Acerca de</h4>
+      <a>Nosotros</a>
+      <a>Asesoría Multifamily</a>
+      <a>Ser corredor</a>
+    </div>
+    <div class="footer-col">
+      <h4>Clientes</h4>
+      <a>Portal arrendatario</a>
+      <a>Portal propietario</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2023 Assetplan</span>
+    <span class="footer-terms">Términos y condiciones</span>
+    <div class="footer-social">
+      <div class="footer-social-icon">FB</div>
+      <div class="footer-social-icon">IG</div>
+      <div class="footer-social-icon">IN</div>
+      <div class="footer-social-icon">TW</div>
+      <div class="footer-social-icon">G</div>
+      <div class="footer-social-icon">YT</div>
+    </div>
+  </div>
+</footer>
+
+<!-- ═══ SEO LINKS ═══ -->
+<section class="seo">
+  <p class="seo-title">Lo más buscado</p>
+  <div class="seo-grid">
+    <div class="seo-col">
+      <h5>Arriendo de departamentos por comuna</h5>
+      <a>Arriendo departamento Santiago</a>
+      <a>Arriendo departamento Estación Central</a>
+      <a>Arriendo departamento Providencia</a>
+      <a>Arriendo departamento Ñuñoa</a>
+      <span class="seo-more">Ver más ▾</span>
+    </div>
+    <div class="seo-col">
+      <h5>Arriendo de departamentos por tipología</h5>
+      <a>Arriendo departamento 1 dormitorio</a>
+      <a>Arriendo departamento 2 dormitorios</a>
+      <a>Arriendo departamento 3 dormitorios</a>
+      <a>Arriendo departamento 4 dormitorios</a>
+      <span class="seo-more">Ver más ▾</span>
+    </div>
+    <div class="seo-col">
+      <h5>Arriendo por cercanía al Metro</h5>
+      <a>Arriendo Metro Los Héroes</a>
+      <a>Arriendo Metro Universidad de Chile</a>
+      <a>Arriendo Metro Baquedano</a>
+      <span class="seo-more">Ver más ▾</span>
+    </div>
+    <div class="seo-col">
+      <h5>Búsquedas frecuentes</h5>
+      <a>Venta departamentos</a>
+      <a>Conseguir arrendatario</a>
+      <a>Corretaje departamento</a>
+      <span class="seo-more">Ver más ▾</span>
+    </div>
+  </div>
+</section>
+
+<script>
+  // ─── Textarea character count ───
+  document.getElementById('comentarios').addEventListener('input', function() {
+    document.getElementById('char-count').textContent = this.value.length;
+  });
+
+  // ─── Animated counters on scroll ───
+  const counters = document.querySelectorAll('.ibanner-stat-val');
+  let counterStarted = false;
+
+  function animateCounters() {
+    if (counterStarted) return;
+    const section = document.querySelector('.ibanner');
+    const rect = section.getBoundingClientRect();
+    if (rect.top < window.innerHeight * 0.8) {
+      counterStarted = true;
+      counters.forEach(el => {
+        const target = parseInt(el.dataset.target);
+        const suffix = el.dataset.suffix || '';
+        const duration = 2000;
+        let start = null;
+        function step(ts) {
+          if (!start) start = ts;
+          const progress = Math.min((ts - start) / duration, 1);
+          const val = Math.floor(progress * target);
+          el.textContent = val.toLocaleString('es-CL') + suffix;
+          if (progress < 1) requestAnimationFrame(step);
+        }
+        requestAnimationFrame(step);
+      });
+    }
+  }
+  window.addEventListener('scroll', animateCounters);
+  animateCounters();
+
+  // ─── Interactive tabs ───
+  const tabContents = [
+    'Administración profesional de tu portafolio inmobiliario con reportes en tiempo real.',
+    'Publica tu cartera en los principales portales del mercado con un solo clic.',
+    'Optimiza la ocupación y maximiza el retorno de cada una de tus unidades.'
+  ];
+
+  document.querySelectorAll('.ibanner-tab').forEach(btn => {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.ibanner-tab').forEach(b => b.classList.remove('active'));
+      this.classList.add('active');
+      const idx = parseInt(this.dataset.tab);
+      const contentEl = document.getElementById('tab-content');
+      contentEl.style.opacity = '0';
+      setTimeout(() => {
+        contentEl.textContent = tabContents[idx];
+        contentEl.style.opacity = '1';
+      }, 150);
+    });
+  });
+
+  // Add transition to tab content
+  document.getElementById('tab-content').style.transition = 'opacity 0.15s ease';
+</script>
+
+</body>
+</html>
